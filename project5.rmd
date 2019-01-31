@@ -1,0 +1,217 @@
+#Explore and Summarize Red Wine Quality Data Set 
+<br/>by Rawan Alaufi
+========================================================
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+library('ggplot2')
+library('dplyr')
+library('PerformanceAnalytics')
+```
+
+```{r echo=FALSE, Load_the_Data}
+knitr::opts_chunk$set( echo=FALSE,warning=FALSE,message=FALSE)
+# Load the Data
+win_df<- read.csv("/Users/rawanalaufi/Downloads/P5/wineQualityReds.csv")
+win_df$X <- NULL
+
+```
+
+# Introduction
+#### In this project I will explore and summerize red win data set with R programming language to identify which features are most correlates with quality of wine. 
+#<br/> Brief Description of Attributes
+####<br/>1 - fixed acidity: most acids involved with wine or fixed or nonvolatile (do not evaporate readily)<br/> 2 - volatile acidity: the amount of acetic acid in wine, which at too high of levels can lead to an unpleasant, vinegar taste <br/>3 - citric acid: found in small quantities, citric acid can add 'freshness' and flavor to wines<br/> 4 - residual sugar: the amount of sugar remaining after fermentation stops, it's rare to find wines with less than 1 gram/liter and wines with greater than 45 grams/liter are considered sweet<br/>5 - chlorides: the amount of salt in the wine <br/>6 - free sulfur dioxide: the free form of SO2 exists in equilibrium between molecular SO2 (as a dissolved gas) and bisulfite ion; it prevents microbial growth and the oxidation of wine<br/>7 - total sulfur dioxide: amount of free and bound forms of S02; in low concentrations, SO2 is mostly undetectable in wine, but at free SO2 concentrations over 50 ppm, SO2 becomes evident in the nose and taste of wine <br/>8 - density: the density of water is close to that of water depending on the percent alcohol and sugar content <br/> 9 - pH: describes how acidic or basic a wine is on a scale from 0 (very acidic) to 14 (very basic); most wines are between 3-4 on the pH scale <br/>10 - sulphates: a wine additive which can contribute to sulfur dioxide gas (S02) levels, wich acts as an antimicrobial and antioxidant <br/>11 - alcohol: the percent alcohol content of the wine<br/>12 - quality (score between 0 and 10)
+
+
+# Univariate Plots Section 
+
+```{r echo=FALSE, Univariate_Plots}
+# dim function return number of rows and columns in a data set
+dim(win_df)
+# str function to display the internal structure of a dataset https://www.rdocumentation.org/packages/utils/versions/3.5.2/topics/str
+str(win_df)
+# summary function to summeraize a dataset 
+summary(win_df)
+```
+####Our dataset consists of 12 variables, with almost 1599 observations without any missing values.
+
+```{r echo=FALSE, Univariate_Plots3,warning=FALSE}
+# Histogram plot to show the number of wines in each quality score 
+ggplot(aes(x=quality),data=win_df)+geom_histogram(binwidth = 1, color="white") +scale_x_continuous(breaks=seq(1,10,1))
+```
+<br/> Most of wines quality graded  as 5   
+```{r echo=FALSE, Univariate_Plots2,warning=FALSE}
+# Histogram plot to represent the precentage of alcohol in wines 
+ggplot(aes(x=alcohol),data=win_df)+geom_histogram(bins= 30)
+```
+<br/>Alcohol content of wine ranges from 9 to 14, but some are over 14 and some less than 9 
+```{r echo=FALSE, Univariate_Plots4,warning=FALSE}
+# Histogram plot to show pH contents in wines
+ggplot(aes(x=pH),data=win_df) +geom_histogram(bins = 30)
+```
+<br/> As we see in the above plot pH of wine is between 3 and 4, most of wines contain pH > 3 and < 3.5    
+Maximum and minumum pH
+```{r echo=FALSE, Univariate_Plots5}
+summary(win_df$pH)
+```
+
+
+```{r echo=FALSE, Univariate_Plots6,warning=FALSE}
+# Histogram plot to show sulphates in wines
+ggplot(aes(x=sulphates),data=win_df)+geom_histogram(bins = 30)
+```
+<br/> Above plot shows sulphates contents in wines , most wines contain sulphates between 0.5 and 1 
+```{r echo=FALSE, Univariate_Plots7,warning=FALSE}
+# Histogram plot to show density of wines
+ggplot(aes(x=density),data=win_df)+geom_histogram(bins = 30)
+```
+<br/>  Above plot shows normall distribution of density of wines.
+
+
+```{r echo=FALSE, Univariate_Plots8,warning=FALSE}
+# Histogram plot to show density of wines
+ggplot(aes(x=volatile.acidity),data=win_df)+geom_histogram(bins = 30)
+```
+<br/> Aas we see in the above plot most wines in this datset contain low volatile acidity.
+```{r echo=FALSE, Univariate_Plots9,warning=FALSE}
+# Histogram plot to show fixed.acidity of wines
+ggplot(aes(x=fixed.acidity),data=win_df)+geom_histogram()
+```
+<br/>Fixed acidity plot is right skewed with some outliers which means most wines contains fixed acidity greater than the median. the medain is 7.9
+# Univariate Analysis<br/>
+
+###What is the structure of your dataset?
+There are 1599 wines in the dataset with 12 features (fixed.acidity, volatile.acidity, citric.acid, residual.sugar, chlorides, free.sulfur.dioxide, total.sulfur.dioxide, density,pH, sulphates, alcohol and quality). The variable quality is ordered factor variables with the following levels.<br/>
+<br/>(worst) -> (best)<br/>
+quality: score between 0 and 10,this dataset contains only from 3 to 8. 
+<br/>Other observations:
+<br/>The median quality score is 6.
+<br/>Most of wine contain 3.3 pH.
+<br/>The median chlorides is 0.012 and the max is 0.611.
+
+### What is/are the main feature(s) of interest in your dataset?<br/>
+
+The main features in the data set is the quality grade of wine, I?d like to determine which features are best for predicting the quality of a diamond. I suspect alcohol and some combination of the other variables can be used to build a predictive model to quality grade of wine.
+### What other features in the dataset do you think will help support your <br/>
+I think alcohol, pH and residual sugar
+
+### Did you create any new variables from existing variables in the dataset?
+<br/>No
+### Of the features you investigated, were there any unusual distributions? \ Did you perform any operations on the data to tidy, adjust, or change the form \of the data? 
+<br/>No
+
+
+# Bivariate Plots Section
+
+```{r echo=FALSE, Bivariate_Plots0 , fig.width=9, fig.height=8}
+chart.Correlation(win_df, histogram=TRUE, pch=19)
+```
+
+From the above chart, free.sulfur, residual.sugar and pH do not seem to have strong correlations with quality, most correlated variable with quality is alcohol, also density is the most variable  correlated with alcohol. I want to look closer at  plots involving quality and some other variables like alcohol and density. 
+
+```{r echo=FALSE, Bivariate_Plots1,warning=FALSE}
+# BoxPlot for each quality score with sulphates
+ggplot(aes(factor(quality),sulphates),data=win_df)+geom_boxplot(aes(fill=quality))+coord_cartesian(ylim=c(0.3,1))+labs(x='Quality Score',y='Sulphates g/dm3')+ theme(legend.position="none")
+```
+<br/>Box plot for each quality grade score, the median of sulphates increases when quality of wine increased. 
+```{r echo=FALSE, Bivariate_Plots2,warning=FALSE}
+# Box plot to show the relationship between alcohol and quality score
+ ggplot(aes(x=factor(quality),y=alcohol),data=win_df)+geom_boxplot()+labs(y='Alcohol %by volume',x='Quality Score')
+
+```
+<br/>The above plot represent the relationship between quality and alcohol,high quality wine contain high alcohol content.
+```{r echo=FALSE, Bivariate_Plots3,warning=FALSE}
+# scatter plot to show if any correlation between density and alcohol
+  ggplot(aes(y=density,x=alcohol),data=win_df) +geom_point()+labs(x='Alcohol %by volume',y='Density g /cm^3')
+```
+<br/>The above scatter plot represents negative correlation, density decreases when alcohol is increased.
+```{r echo=FALSE, Bivariate_Plots4,warning=FALSE}
+# scatter plot to show the correlation between fixed.acidity and pH
+ ggplot(aes(y=fixed.acidity,x=pH),data=win_df)+geom_point()
+```
+<br/>[Tha chart of correlation matrix here](#Bivariate_Plots0) shows the correlation coefficient of pH and fixed.acidity which is -0.68 that's mean there is a strong negative correlation between them, The above scatter plot shows this correlation, pH increases when fixed.acidity decreased.    
+# Bivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the \
+investigation. How did the feature(s) of interest vary with other features in \
+the dataset?
+Quality correlates with alcohol and sulphates, alcohol correlates with density.
+
+### Did you observe any interesting relationships between the other features \
+(not the main feature(s) of interest)?
+Yes there is a strong relationship between alcohol and density.
+### What was the strongest relationship you found?
+Quality correlates strongly with alcohol, correlation coefficient of them is 0.5 and negative correlation between density and alcohol with -0.5 correlation coefficient.
+<br/>
+# Multivariate Plots Section
+
+```{r echo=FALSE, Multivariate_Plots4,warning=FALSE}
+# Scatter plot to represent the correlation between density and alcohol by quality score
+ggplot(data=win_df, aes(y=density,x=alcohol, color=factor(quality)))+geom_point()+labs(x='Alcohol %by volume',y='Density g /cm^3',color='Quality Score')
+```
+<br/>Dark blue points that repesent Worst quality  are on  section of high density and low alcohol.
+```{r echo=FALSE, Multivariate_Plots0}
+# Scatter plot to represent the correlation between volatile.acidity and alcohol by quality score
+ ggplot(data=win_df,aes(y=volatile.acidity, x=alcohol, color=factor(quality)))+geom_point()+labs(x='Alcohol %by volume',y= 'volatile acidity g/dm^3')+scale_color_brewer(palette = "RdYlBu", direction = -1, name = "Quality Score")
+```
+<br/>As the plot shows higher quality have low volatile acidity and high alcohol. 
+
+```{r echo=FALSE, Multivariate_Plots5 , warning=FALSE,fig.width=9, fig.height=8}
+wine_df.sub<- win_df
+# Round Alcohol precentage to 0.5 to limit the number of box plots 
+wine_df.sub[['alcohol']] <-round(win_df$alcohol/0.5)*0.5
+# Then remove wines with alcohol > 14 
+wine_df.sub<- subset(wine_df.sub,alcohol<14)
+ggplot(data=wine_df.sub, aes(x=free.sulfur.dioxide,                             y=total.sulfur.dioxide))+facet_wrap(~alcohol,ncol = 2,scales = 'free')+geom_point()+ylim(min(wine_df.sub$total.sulfur.dioxide)
+  ,quantile(wine_df.sub$total.sulfur.dioxide, 0.95)) + xlim(min(wine_df.sub$free.sulfur.dioxide)                                                       ,quantile(wine_df.sub$free.sulfur.dioxide, 0.95))+labs(x='free sulfur dioxid mg/dm^3',y='total sulfur dioxid mg/dm^3')
+
+```
+<br/> The above plot shows strong correlation between free.sulfur.dioxide and total.sulfur.dioxide by alcohol precentage,free.sulfur.dioxide increases when total.sulfur.dioxide increased.
+
+
+#<br/>Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the \
+<br/>investigation. Were there features that strengthened each other in terms of \
+looking at your feature(s) of interest?
+#### There is a strong relationship between quality, alcohol and density.
+### Were there any interesting or surprising interactions between features?
+
+
+<br/>NO
+------
+
+# Final Plots and Summary
+
+### Plot One
+```{r echo=FALSE, Plot_One}
+# Plot from univariate plots section
+ggplot(aes(x=quality),data=win_df)+geom_bar(fill='dark blue')+labs(x='Quality Score',y="Number of Wines")+ggtitle("Quality of Red Wines From worst to best")+scale_x_continuous(breaks =unique(win_df$quality))
+```
+
+<br/>The most of wine quality score is 5 and 6.
+
+### Plot Two
+```{r echo=FALSE, Plot_Two}
+ggplot(aes(x=factor(quality),y=alcohol),data=win_df)+labs(x='Quality Score',y='Alcohol %by volume')+geom_boxplot()+ggtitle("Alcohol Percentage vs Quality Score")
+
+```
+
+<br/>The above heat map plot shows the best quality grade score comes with high alcohol precentage
+
+
+### Plot Three
+```{r echo=FALSE, Plot_Three}
+
+ggplot(data=win_df,aes(y=volatile.acidity, x=alcohol, color=factor(quality)))+geom_point()+labs(x='Alcohol %by volume',y= 'volatile acidity g/dm^3')+scale_color_brewer(palette = "RdYlBu", direction = -1, name = "Quality Score")
+
+```
+
+<br/>Worst quality score comes with high density and low alcohol precentage.
+
+------
+
+# Reflection
+
+
+> That's my first R project, I didn't use R programming language before, I have chosen red wine data set which contains 1599 observations and 12 features. it tooks me more than 10 hours to explore it was not difficult it's so enjoyable. When I learn R more I will go back to it and explore it more.   
